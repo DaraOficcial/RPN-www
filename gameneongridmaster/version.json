@@ -1,11 +1,5 @@
 {
   "version": "1.1.0",
-  "update_url": "https://rapon-studio.daraxz-it.rf.gd/download/game-v11.apk",
-  "notes": [
-    "Sistem Suara Klik Baru",
-    "Auto-Music Management",
-    "Tema BARANG BERHARGA & BOBOIBOY",
-    "Perbaikan Bug Iframe"
-  ]
+  "update_url": "update.html"
 }
 
