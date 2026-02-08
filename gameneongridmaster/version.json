@@ -1,11 +1,17 @@
 {
-  "version": "1.1.0",
-  "update_url": "https://rapon-dra.itch.io/neon-grid-match-game-puzzle-game",
-  "changelog": [
-    "Sistem Suara Klik Baru",
-    "Auto-Music Management",
-    "Banyak tema baru: Boboiboy, Roblox, dll",
-    "Perbaikan Bug di APK"
-  ]
+  "version": "1.1.1",
+  "update_title": "Major Update v1.1.1",
+  "description": "Added new levels and improved gameplay",
+  "features": [
+    "New power-up system",
+    "10 additional levels",
+    "Improved graphics",
+    "Bug fixes"
+  ],
+  "bug_fixes": [
+    "Fixed memory leak issue",
+    "Resolved crash on level 15",
+    "Improved performance on mobile devices"
+  ],
+  "download_url": "Update.html"
 }
-
