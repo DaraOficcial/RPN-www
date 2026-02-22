@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secure Vault • Dark • Update</title>
+<style>
+* {
+  box-sizing: border-box;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+}
+body {
+  background: #0b0e14;
+  margin: 0;
+  padding: 16px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.container {
+  background: #1a1f2b;
+  border-radius: 24px;
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px #2c3340 inset;
+  width: 100%;
+  max-width: 440px;
+  padding: 24px;
+  color: #e9edf2;
+  transition: all 0.2s;
+}
+h2 {
+  text-align: center;
+  font-weight: 500;
+  font-size: 1.8rem;
+  letter-spacing: -0.5px;
+  margin: 0 0 16px 0;
+  color: #f0f4fa;
+  border-bottom: 1px solid #2f3747;
+  padding-bottom: 16px;
+}
+p {
+  line-height: 1.5;
+  color: #b9c2d4;
+  margin: 12px 0;
+}
+input, button, select {
+  width: 100%;
+  padding: 14px 16px;
+  margin: 8px 0;
+  border-radius: 16px;
+  font-size: 1rem;
+  border: 1px solid #2e3748;
+  background: #0f131c;
+  color: #eef2f8;
+  outline: none;
+  transition: border 0.15s, box-shadow 0.15s;
+}
+input:focus {
+  border-color: #4f9eff;
+  box-shadow: 0 0 0 3px rgba(79, 158, 255, 0.2);
+}
+button {
+  background: #2a3442;
+  border: 1px solid #3e4a5d;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, border 0.2s;
+}
+button:hover {
+  background: #364153;
+  border-color: #5f6f88;
+}
+button:active {
+  background: #1f2733;
+}
+.hidden {
+  display: none !important;
+}
+.vault-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #121723;
+  border-radius: 20px;
+  margin: 10px 0;
+  border: 1px solid #2c3442;
+  word-break: break-word;
+  gap: 8px;
+}
+.vault-item span:first-child {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  background: #1e2633;
+  padding: 6px 12px;
+  border-radius: 40px;
+  font-size: 0.9rem;
+  color: #cbd5e8;
+}
+.vault-item button {
+  width: auto;
+  padding: 6px 16px;
+  margin: 0 4px;
+  border-radius: 30px;
+  background: #28303f;
+  border-color: #3e4b60;
+  font-size: 0.85rem;
+}
+.vault-item button:first-of-type {
+  background: #1e3b4f;
+  border-color: #2d5f7a;
+}
+.vault-item button:first-of-type:hover {
+  background: #234b64;
+}
+.notice {
+  font-size: 0.85rem;
+  color: #ffb4a2;
+  background: #301e24;
+  border-left: 4px solid #ff6b6b;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin: 20px 0 8px;
+  text-align: left;
+}
+
+/* notifikasi custom */
+.notification-div {
+  background: #252f3f;
+  border-left: 5px solid #6c8cff;
+  color: #e6edff;
+  padding: 16px 18px;
+  border-radius: 20px;
+  margin: 16px 0 8px;
+  font-weight: 450;
+  box-shadow: 0 10px 18px -8px #00000060;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #3c4a60;
+  animation: slideFade 0.2s ease;
+}
+.notification-div.error {
+  border-left-color: #ff6f6f;
+  background: #2f2228;
+  color: #ffd6d6;
+}
+.notification-div.success {
+  border-left-color: #6fda7f;
+  background: #1d2f23;
+  color: #ccf5d2;
+}
+@keyframes slideFade {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.close-notify {
+  margin-left: auto;
+  background: none;
+  border: none;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 20px;
+  color: #ccdbf2;
+  cursor: pointer;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.close-notify:hover {
+  background: #3e4c64;
+}
+
+/* konfirmasi custom (modal) */
+.confirm-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.confirm-card {
+  background: #1e2636;
+  border-radius: 32px;
+  max-width: 340px;
+  width: 90%;
+  padding: 28px 24px;
+  border: 1px solid #41516b;
+  box-shadow: 0 30px 50px #00000080;
+  text-align: center;
+}
+.confirm-card p {
+  font-size: 1.2rem;
+  margin-bottom: 28px;
+  color: #f0f5ff;
+}
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+}
+.confirm-actions button {
+  margin: 0;
+  background: #2e3b4f;
+  border: 1px solid #506280;
+}
+.confirm-actions button:last-child {
+  background: #3f2f3a;
+  border-color: #9f5e6c;
+}
+.confirm-actions button:last-child:hover {
+  background: #5a3f4b;
+}
+
+/* update page khusus : tidak bisa ditutup, full perhatian */
+.update-locked {
+  text-align: center;
+}
+.changelog-box {
+  background: #0f1620;
+  border-radius: 20px;
+  padding: 16px;
+  margin: 16px 0;
+  border: 1px solid #3a4a62;
+  font-family: monospace;
+  text-align: left;
+  color: #cbd5e8;
+  white-space: pre-wrap;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.update-button {
+  background: #1f4a6f;
+  border-color: #4690cf;
+  font-size: 1.2rem;
+  padding: 16px;
+  margin-top: 20px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+.update-button:hover {
+  background: #286597;
+}
+.copy-hint {
+  background: #19232e;
+  border-radius: 40px;
+  padding: 12px;
+  font-size: 0.9rem;
+  border: 1px dashed #4f658d;
+}
+hr {
+  border: 1px solid #2e384b;
+  margin: 24px 0 16px;
+}
+#vaultList {
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin: 16px 0;
+}
+#vaultList::-webkit-scrollbar {
+  width: 6px;
+}
+#vaultList::-webkit-scrollbar-thumb {
+  background: #384153;
+  border-radius: 8px;
+}
+</style>
+</head>
+<body>
+<div class="container" id="mainContainer">
+
+  <!-- notifikasi global -->
+  <div id="globalNotify" class="hidden"></div>
+
+  <!-- UPDATE PAGE : muncul jika versi tidak cocok, locked -->
+  <div id="updatePage" class="">
+    <h2>🔄 Update Tersedia</h2>
+    <p style="text-align:center;">Versi aplikasi lebih lama dari versi terbaru</p>
+    <div id="changelogDisplay" class="changelog-box">Memuat changelog...</div>
+    <div class="copy-hint" id="downloadLinkContainer">
+      Link Download: <span id="downloadUrlSpan">version.json? (gagal ambil)</span>
+    </div>
+    <button class="update-button" id="copyUpdateBtn" onclick="handleUpdateClick()">📋 Salin Link & Update</button>
+    <p style="font-size:0.8rem; color:#a8b6d0;">Link sudah disalin. Buka browser dan tempel. Halaman ini tidak dapat ditutup sampai aplikasi diperbarui.</p>
+    <!-- elemen hidden untuk menyimpan url download dari version.json -->
+    <div id="updatePayload" data-url="" data-changelog=""></div>
+  </div>
+
+  <!-- Welcome Page (tidak akan muncul jika kena update) -->
+  <div id="welcomePage" class="hidden">
+    <h2>🔐 Secure Vault</h2>
+    <p style="font-size:1.1rem; text-align:center;">selamat datang di aplikasi</p>
+    <p>Buat username & master password. <strong>Data hanya disimpan di lokal.</strong> Jangan hapus cache/devais — developer tidak bertanggung jawab atas kehilangan data.</p>
+    <button onclick="showSignup()">Mulai</button>
+  </div>
+
+  <!-- Signup Page -->
+  <div id="signupPage" class="hidden">
+    <h2>📝 Buat Akun</h2>
+    <input type="text" id="newUsername" placeholder="Username">
+    <input type="password" id="newMasterPassword" placeholder="Master Password">
+    <input type="text" id="recoveryQuestion" placeholder="Pertanyaan Recovery">
+    <input type="text" id="recoveryAnswer" placeholder="Jawaban Recovery">
+    <button onclick="signup()">Buat Akun</button>
+  </div>
+
+  <!-- Login Page -->
+  <div id="loginPage" class="hidden">
+    <h2>🔑 Login</h2>
+    <input type="text" id="loginUsername" placeholder="Username">
+    <input type="password" id="loginPassword" placeholder="Master Password">
+    <button onclick="login()">Login</button>
+    <button onclick="showRecovery()">❓ Lupa Master Password?</button>
+  </div>
+
+  <!-- Recovery Page -->
+  <div id="recoveryPage" class="hidden">
+    <h2>🔁 Recovery</h2>
+    <p id="recoveryQuestionDisplay" style="background:#1f2838; padding:12px; border-radius:16px;"></p>
+    <input type="text" id="recoveryAnswerInput" placeholder="Jawaban recovery">
+    <button onclick="recoverPassword()">Pulihkan Password Master</button>
+  </div>
+
+  <!-- Main Vault Page -->
+  <div id="vaultPage" class="hidden">
+    <h2>📦 Vault Anda</h2>
+    <input type="text" id="vaultApp" placeholder="Aplikasi / Situs">
+    <input type="text" id="vaultPassword" placeholder="Password">
+    <button onclick="addVaultItem()">➕ Tambah</button>
+    <div id="vaultList"></div>
+    <hr>
+    <button onclick="showEditAccount()">✎ Edit Akun</button>
+    <button onclick="logout()">🚪 Logout</button>
+  </div>
+
+  <!-- Edit Account Page -->
+  <div id="editAccountPage" class="hidden">
+    <h2>⚙️ Edit Akun</h2>
+    <input type="text" id="editUsername" placeholder="Username Baru">
+    <input type="password" id="editMasterPassword" placeholder="Master Password Baru">
+    <button onclick="updateAccount()">Simpan Perubahan</button>
+    <button onclick="showVault()">← Kembali ke Vault</button>
+  </div>
+  
+  <!-- DONATION POPUP -->
+<div id="donationPopup" style="
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.7);
+backdrop-filter:blur(4px);
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:9999;
+">
+  <div style="
+  background:#1e2636;
+  padding:28px;
+  border-radius:28px;
+  width:90%;
+  max-width:340px;
+  text-align:center;
+  border:1px solid #41516b;
+  box-shadow:0 30px 50px #00000080;
+  ">
+    <h2 style="margin-top:0;">💙 Dukung Developer</h2>
+    <p style="color:#cbd5e8;">
+      Jika aplikasi ini membantu kamu,
+      pertimbangkan untuk berdonasi agar project terus berkembang.
+    </p>
+    <button onclick="donateNow()" style="
+      width:100%;
+      padding:14px;
+      border-radius:16px;
+      background:#1f4a6f;
+      border:1px solid #4690cf;
+      color:white;
+      margin-top:10px;
+    ">Donasi Sekarang</button>
+
+    <button onclick="closeDonation()" style="
+      width:100%;
+      padding:14px;
+      border-radius:16px;
+      margin-top:10px;
+      background:#2e3b4f;
+      border:1px solid #506280;
+      color:white;
+    ">Tutup</button>
+  </div>
+</div>
+<div style="
+  text-align:center;
+  margin-top:24px;
+  font-size:0.75rem;
+  color:#5f6f88;
+  opacity:0.8;
+">
+  Aplikasi by <strong style="color:#8fb4ff;">RaPon</strong> ©2026 All Rights Reserved
+</div>
+</div>
+
+<script>
+(function() {
+  // === VERSI LOKAL APLIKASI ===
+  const APP_VERSION = "2.6.0";  // <-- ganti jika rilis baru
+
+  const $ = id => document.getElementById(id);
+
+  // notifikasi
+  function showNotification(message, type = 'info', duration = 4000) {
+    const notifyDiv = $('globalNotify');
+    notifyDiv.classList.remove('hidden', 'error', 'success');
+    notifyDiv.className = `notification-div ${type === 'error' ? 'error' : type === 'success' ? 'success' : ''}`;
+    notifyDiv.innerHTML = `
+      <span style="flex:1">${message}</span>
+      <button class="close-notify" onclick="this.parentElement.classList.add('hidden')">&times;</button>
+    `;
+    notifyDiv.classList.remove('hidden');
+    if (duration > 0) {
+      setTimeout(() => notifyDiv.classList.add('hidden'), duration);
+    }
+  }
+
+  // konfirm custom
+  function showConfirm(message, onConfirm, onCancel) {
+    const overlay = document.createElement('div');
+    overlay.className = 'confirm-overlay';
+    overlay.id = 'customConfirmOverlay';
+    overlay.innerHTML = `
+      <div class="confirm-card">
+        <p>${message}</p>
+        <div class="confirm-actions">
+          <button id="confirmYes">Ya, lanjutkan</button>
+          <button id="confirmNo">Batal</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    document.getElementById('confirmYes').focus();
+    const cleanup = () => {
+      const existing = document.getElementById('customConfirmOverlay');
+      if (existing) existing.remove();
+    };
+    document.getElementById('confirmYes').onclick = () => {
+      cleanup();
+      if (onConfirm) onConfirm();
+    };
+    document.getElementById('confirmNo').onclick = () => {
+      cleanup();
+      if (onCancel) onCancel();
+    };
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        cleanup();
+        if (onCancel) onCancel();
+      }
+    });
+  }
+
+  // page controller
+  function showPage(pageId) {
+    const updatePage = $('updatePage');
+    // sembunyikan semua page kecuali update jika dia sedang aktif
+    ['welcomePage','signupPage','loginPage','recoveryPage','vaultPage','editAccountPage','updatePage'].forEach(id => {
+      if (id === 'updatePage') return; // khusus update ditangani logic
+      $(id).classList.add('hidden');
+    });
+    if (pageId === 'updatePage') {
+      updatePage.classList.remove('hidden');
+      // sembunyikan lainnya (sudah)
+    } else {
+      updatePage.classList.add('hidden'); // sembunyikan update jika ke page lain
+      $(pageId).classList.remove('hidden');
+    }
+    $('globalNotify').classList.add('hidden');
+  }
+
+  // Attach ke window
+  window.showNotification = showNotification;
+  window.showConfirm = showConfirm;
+  window.showPage = showPage;
+
+  // fungsi untuk memeriksa version.json dan membandingkan
+  async function checkVersionAndLock() {
+    try {
+      const response = await fetch('version.json?t='+Date.now()); // cache bust
+      if (!response.ok) throw new Error('Gagal fetch version.json');
+      const data = await response.json();
+      const remoteVersion = data.version;
+      const changelog = data.changelog || 'tidak ada catatan perubahan.';
+      const downloadUrl = data.downloadUrl || 'https://example.com/download/app';
+
+      // simpan ke hidden attribute
+      $('updatePayload').dataset.url = downloadUrl;
+      $('updatePayload').dataset.changelog = changelog;
+      $('downloadUrlSpan').innerText = downloadUrl;
+      $('changelogDisplay').innerText = changelog;
+
+      if (remoteVersion !== APP_VERSION) {
+        // berbeda -> kunci di halaman update
+        showPage('updatePage');
+        return true; // sedang mode update
+      } else {
+        // versi sama -> lanjut seperti biasa, tampilkan welcome / login
+        showInitialPage();
+        return false;
+      }
+    } catch (e) {
+      console.warn('Gagal cek versi, asumsi sama atau offline', e);
+      // jika gagal fetch, biarkan akses seperti biasa (tampilkan welcome/login)
+      showInitialPage();
+      return false;
+    }
+  }
+
+  function showInitialPage() {
+    if (localStorage.getItem('vaultUser')) {
+      showPage('loginPage');
+    } else {
+      showPage('welcomePage');
+    }
+  }
+  window.handleUpdateClick = function() {
+    const url = $('updatePayload').dataset.url || 'Tidak ada link';
+    // copy ke clipboard
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(() => {
+        showNotification('Link tersalin! Tempel di browser baru', 'success', 4000);
+      }).catch(() => {
+        fallbackCopy(url);
+      });
+    } else {
+      fallbackCopy(url);
+    }
+    showNotification('Buka browser, tempel link, download aplikasi baru', 'info', 6000);
+  };
+
+  function fallbackCopy(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      showNotification('Link disalin (fallback)', 'success');
+    } catch (err) {
+      alert('Salin link manual: ' + text);
+    }
+    document.body.removeChild(textarea);
+  }
+  let currentUser = null;
+  window.showSignup = () => showPage('signupPage');
+  window.signup = () => {
+    const u = $('newUsername').value.trim();
+    const p = $('newMasterPassword').value;
+    const q = $('recoveryQuestion').value.trim();
+    const a = $('recoveryAnswer').value.trim();
+    if (!u || !p || !q || !a) {
+      showNotification('Lengkapi semua field', 'error');
+      return;
+    }
+    if (localStorage.getItem('vaultUser')) {
+      showNotification('Akun sudah terdaftar, silahkan login', 'error');
+      showLogin();
+      return;
+    }
+    localStorage.setItem('vaultUser', JSON.stringify({ username: u, password: p, recoveryQ: q, recoveryA: a, vault: [] }));
+    showNotification('Akun berhasil dibuat, silakan login', 'success');
+    showLogin();
+  };
+  window.showLogin = () => showPage('loginPage');
+  window.login = () => {
+    const u = $('loginUsername').value.trim();
+    const p = $('loginPassword').value;
+    const data = JSON.parse(localStorage.getItem('vaultUser') || 'null');
+    if (!data || data.username !== u || data.password !== p) {
+      showNotification('Username atau password salah', 'error');
+      return;
+    }
+    currentUser = data;
+    showVault();
+  };
+  window.showRecovery = () => {
+    const data = JSON.parse(localStorage.getItem('vaultUser') || 'null');
+    if (!data) { showNotification('Tidak ada akun terdaftar', 'error'); return; }
+    $('recoveryQuestionDisplay').innerText = data.recoveryQ;
+    showPage('recoveryPage');
+  };
+  window.recoverPassword = () => {
+    const answer = $('recoveryAnswerInput').value.trim();
+    const data = JSON.parse(localStorage.getItem('vaultUser') || 'null');
+    if (!data) return;
+    if (answer === data.recoveryA) {
+      showNotification(`Password Master Anda: ${data.password}`, 'success', 6000);
+      showLogin();
+    } else {
+      showNotification('Jawaban recovery salah', 'error');
+    }
+  };
+  window.showVault = () => {
+    if (!currentUser) { showLogin(); return; }
+    showPage('vaultPage');
+    displayVault();
+  };
+  window.addVaultItem = () => {
+    const app = $('vaultApp').value.trim();
+    const pass = $('vaultPassword').value.trim();
+    if (!app || !pass) {
+      showNotification('Nama aplikasi dan password wajib diisi', 'error');
+      return;
+    }
+    currentUser.vault.push({ app, password: pass });
+    saveVault(); displayVault();
+    $('vaultApp').value = ''; $('vaultPassword').value = '';
+    showNotification(`"${app}" ditambahkan`, 'success');
+  };
+  function displayVault() {
+    const list = $('vaultList'); list.innerHTML = '';
+    if (!currentUser.vault.length) {
+      list.innerHTML = '<p style="text-align:center; color:#67758f;">— vault kosong, tambah sekarang —</p>';
+      return;
+    }
+    currentUser.vault.forEach((item, i) => {
+      const div = document.createElement('div'); div.className = 'vault-item';
+      div.innerHTML = `<span>${item.app}: ${item.password}</span>
+      <span>
+        <button onclick="deleteVault(${i})">Hapus</button>
+      </span>`;
+      list.appendChild(div);
+    });
+  }
+  window.editVault = (i) => {
+    const newPass = prompt('Edit password untuk ' + currentUser.vault[i].app, currentUser.vault[i].password);
+    if (newPass !== null && newPass.trim() !== '') {
+      currentUser.vault[i].password = newPass.trim();
+      saveVault(); displayVault();
+      showNotification('Password diperbarui', 'success');
+    } else if (newPass !== null && newPass.trim() === '') {
+      showNotification('Password tidak boleh kosong', 'error');
+    }
+  };
+  window.deleteVault = (i) => {
+    const appName = currentUser.vault[i].app;
+    showConfirm(`Hapus item "${appName}"?`, () => {
+      currentUser.vault.splice(i, 1);
+      saveVault(); displayVault();
+      showNotification(`"${appName}" dihapus`, 'info');
+    }, () => {
+      showNotification('Dihapus batal', 'info', 1500);
+    });
+  };
+  function saveVault() {
+    localStorage.setItem('vaultUser', JSON.stringify(currentUser));
+  }
+  window.showEditAccount = () => {
+    if (!currentUser) return;
+    $('editUsername').value = currentUser.username;
+    $('editMasterPassword').value = currentUser.password;
+    showPage('editAccountPage');
+  };
+  window.updateAccount = () => {
+    const u = $('editUsername').value.trim();
+    const p = $('editMasterPassword').value;
+    if (!u || !p) {
+      showNotification('Username / password baru harus diisi', 'error');
+      return;
+    }
+    currentUser.username = u;
+    currentUser.password = p;
+    saveVault();
+    showNotification('Akun berhasil diperbarui', 'success');
+    showVault();
+  };
+  window.logout = () => {
+    currentUser = null;
+    showLogin();
+    showNotification('Anda telah logout', 'info', 2000);
+  };
+  window.onload = async function() {
+    $('changelogDisplay').innerText = 'Mengecek versi...';
+    await checkVersionAndLock();
+  };
+})();
+
+// ===== DONATION SIMPLE =====
+function closeDonation(){
+  const popup = document.getElementById("donationPopup");
+  if(popup) popup.style.display = "none";
+}
+
+function donateNow(){
+  const link = "https://example.com/donate"; // ganti link kamu
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(link);
+  }
+  showNotification("Link donasi disalin 💙","success",4000);
+  closeDonation();
+}
+
+// Muncul otomatis setiap masuk
+setTimeout(() => {
+  const popup = document.getElementById("donationPopup");
+  if(popup) popup.style.display = "flex";
+}, 1000);
+</script>
+</body>
+</html>

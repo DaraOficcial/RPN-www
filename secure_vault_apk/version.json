@@ -1,0 +1,5 @@
+{
+  "version": "2.6.2",
+  "changelog": "🔧 UPDATE VERSION 2.6.0\n\n✅ Fitur Baru:\n- Pengecekan versi otomatis\n- Halaman update yang terkunci\n- Notifikasi paksa update\n\n🐛 Perbaikan:\n- Keamanan vault ditingkatkan\n- Enkripsi data lebih kuat\n- Perbaikan bug recovery password\n\n📦 Cara Update:\nDownload file terbaru dan install manual",
+  "downloadUrl": "https://rapon.com/download/securevault-v2.3.0.html"
+}
