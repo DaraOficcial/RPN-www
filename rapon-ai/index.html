@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RaPon-AI Sidebar Responsif</title>
+    <script src="https://js.puter.com/v2/"></script>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: sans-serif;
+            background: #0b141a;
+            color: #e9edef;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            position: relative; 
+        }
+
+        .sidebar {
+            width: 260px;
+            background: #111b21;
+            border-right: 1px solid #222e35;
+            padding: 15px;
+            box-sizing: border-box;
+            transition: transform 0.3s ease; 
+            z-index: 100; 
+        }
+
+        .main-content {
+            flex: 1;
+            background: #222e35;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        .chat-header {
+            background: #1f2c34;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid #2a3942;
+        }
+
+        .hamburger-btn {
+            font-size: 24px;
+            color: #e9edef;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: none; 
+        }
+
+        .chat-messages {
+        flex: 1; 
+        padding: 20px;
+        overflow-y: auto; 
+        
+        display: flex;
+        flex-direction: column;
+        }
+
+        #prompt {
+            background: #1f2c34;
+            padding: 15px 20px;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #2a3942;
+        }
+
+        #prompt input {
+            flex: 1;
+            background: #2a3942;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            color: white;
+            outline: none;
+        }
+
+        #prompt button {
+            background: #00a884;
+            color: #111b21;
+            border: none;
+            padding: 0 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .sidebar button {
+            background: #00a884;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 90;
+        }
+
+        @media (max-width: 768px) {
+            .hamburger-btn {
+                display: block; 
+            }
+
+            .sidebar {
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                transform: translateX(-100%); 
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar.active ~ .sidebar-overlay {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+
+        <aside class="sidebar" id="sidebar-menu">
+    <h2 style="margin-top: 0;">Obrolan</h2>
+    
+    <button id="new-chat-btn" style="background: #00a884; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 15px;">
+        + Obrolan Baru
+    </button>
+
+    <p style="color: #8696a0; font-size: 14px; margin-bottom: 5px;">Daftar chat history...</p>
+    
+    <div id="daftar-chat" style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;"></div>
+    
+    <button style="margin-top: 20px;">IndexedDB</button>
+</aside>
+
+        <div class="sidebar-overlay" id="menu-overlay"></div>
+
+        <main class="main-content">
+            
+            <div class="chat-header">
+                <button class="hamburger-btn" id="toggle-menu">&#9776;</button>
+                <span style="font-weight: bold; font-size: 16px;">RaPon-AI Chat</span>
+            </div>
+            
+            <div class="chat-messages" id="chat-box">
+                <h1>RaPon-AI Workspace</h1>
+                <p>Ini adalah area tempat bubble chat dirender. Coba kecilkan browser kamu atau buka via HP, lalu klik tombol garis tiga di kiri atas!</p>
+            </div>
+
+            <div id="prompt">
+                <input type="text" id="user-input" placeholder="Ketik pesan di sini...">
+                
+                <button id="send-btn">&gt;</button>
+            </div>
+
+        </main>
+
+    </div>
+
+    <script src="main.js"></script>
+
+</body>
+</html>
