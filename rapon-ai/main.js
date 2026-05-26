@@ -211,13 +211,20 @@ async function panggilAI() {
     try {
         send.disabled = true;
 
-        // --- PERBAIKAN IDENTITAS AI (RaPon) ---
-        // Kita bungkus pesan user dengan instruksi sistem agar AI tahu identitasnya.
-        const promptSistem = `Kamu adalah RaPon, sebuah AI asisten workspace yang ramah, pintar, dan dibuat untuk membantu pengguna dalam mengelola obrolan dan tugas mereka. Jawab pertanyaan berikut dengan gaya karaktermu sebagai RaPon: \n\nUser: ${teksUser}`;
-        
-        // Panggil API Puter menggunakan prompt yang sudah disisipkan identitas
-        const respon = await puter.ai.chat(promptSistem);
-        // --------------------------------------
+        // Formatan pesan dengan menyertakan instruksi sistem (System Prompt) yang resmi
+        const pesanUntukAI = [
+            { 
+                role: 'system', 
+                content: 'Kamu adalah RaPon, sebuah AI asisten workspace buatan manusia yang ramah, pintar, dan berfokus membantu pengelolaan obrolan. Kamu HARUS menjawab sebagai RaPon dan menolak jika disebut sebagai Claude atau asisten lain.' 
+            },
+            { 
+                role: 'user', 
+                content: teksUser 
+            }
+        ];
+
+        // Kirim array pesan ke API Puter
+        const respon = await puter.ai.chat(pesanUntukAI);
         
         let teksJawabanAsli = "";
         if (respon && respon.message && respon.message.content) {
