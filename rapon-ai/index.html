@@ -9,13 +9,12 @@
         html, body {
             margin: 0;
             padding: 0;
-            /* Menggunakan height: 100vh dan dvh (Dynamic Viewport Height) untuk mobile browser */
             height: 100vh;
             height: 100dvh; 
             font-family: sans-serif;
             background: #0b141a;
             color: #e9edef;
-            overflow: hidden; /* Mengunci scroll utama pada body */
+            overflow: hidden; 
         }
 
         .app-container {
@@ -34,7 +33,6 @@
             box-sizing: border-box;
             transition: transform 0.3s ease; 
             z-index: 100; 
-            /* Memastikan posisi sidebar mantap di mobile */
             height: 100%;
         }
 
@@ -44,7 +42,7 @@
             display: flex;
             flex-direction: column;
             height: 100%;
-            min-width: 0; /* Mencegah flexbox meluap secara horizontal */
+            min-width: 0; 
             position: relative;
         }
 
@@ -55,7 +53,7 @@
             align-items: center;
             gap: 15px;
             border-bottom: 1px solid #2a3942;
-            flex-shrink: 0; /* Mengunci header agar tidak mengecil/tertekan */
+            flex-shrink: 0; 
         }
 
         .hamburger-btn {
@@ -70,8 +68,8 @@
         .chat-messages {
             flex: 1; 
             padding: 20px;
-            overflow-y: auto; /* Hanya area ini yang boleh di-scroll */
-            -webkit-overflow-scrolling: touch; /* Scroll halus di iOS */
+            overflow-y: auto; 
+            -webkit-overflow-scrolling: touch; 
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
@@ -83,7 +81,7 @@
             display: flex;
             gap: 10px;
             border-top: 1px solid #2a3942;
-            flex-shrink: 0; /* Mengunci area input agar tetap diam di bawah */
+            flex-shrink: 0; 
             box-sizing: border-box;
         }
 
@@ -95,7 +93,7 @@
             border-radius: 8px;
             color: white;
             outline: none;
-            font-size: 16px; /* Mencegah auto-zoom otomatis pada iOS Safari */
+            font-size: 16px; 
         }
 
         #prompt button {
@@ -108,15 +106,19 @@
             cursor: pointer;
         }
 
-        .sidebar button {
-            background: #00a884;
+        /* Desain untuk text bubble bawaan saat pertama kali masuk */
+        .bubble {
+            padding: 10px 14px;
+            border-radius: 8px;
+            max-width: 75%;
+            font-size: 14px;
+            line-height: 1.4;
+            margin: 5px 0;
+        }
+        .bubble.ai {
+            background-color: #202c33;
             color: white;
-            border: none;
-            padding: 10px;
-            width: 100%;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 15px;
+            align-self: flex-start;
         }
 
         .sidebar-overlay {
@@ -164,8 +166,6 @@
             <p style="color: #8696a0; font-size: 14px; margin-bottom: 5px;">Daftar chat history...</p>
             
             <div id="daftar-chat" style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;"></div>
-            
-            <button style="margin-top: 20px;">IndexedDB</button>
         </aside>
 
         <div class="sidebar-overlay" id="menu-overlay"></div>
@@ -178,11 +178,7 @@
             </div>
             
             <div class="chat-messages" id="chat-box">
-                <h1>RaPon-AI Workspace</h1>
-                <p>Ini adalah area tempat bubble chat dirender. Coba kecilkan browser kamu atau buka via HP, lalu klik tombol garis tiga di kiri atas!</p>
-                <div style="height: 1200px; background: linear-gradient(#222e35, #111b21); margin-top: 20px; padding: 10px; border-radius: 8px; color: #8696a0;">
-                    Konten chat panjang ke bawah... (Scroll di sini untuk uji coba)
-                </div>
+                <div class="bubble ai">Halo! Sesi baru siap. Ada yang bisa dibantu?</div>
             </div>
 
             <div id="prompt">
