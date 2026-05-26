@@ -210,7 +210,14 @@ async function panggilAI() {
 
     try {
         send.disabled = true;
-        const respon = await puter.ai.chat(teksUser);
+
+        // --- PERBAIKAN IDENTITAS AI (RaPon) ---
+        // Kita bungkus pesan user dengan instruksi sistem agar AI tahu identitasnya.
+        const promptSistem = `Kamu adalah RaPon, sebuah AI asisten workspace yang ramah, pintar, dan dibuat untuk membantu pengguna dalam mengelola obrolan dan tugas mereka. Jawab pertanyaan berikut dengan gaya karaktermu sebagai RaPon: \n\nUser: ${teksUser}`;
+        
+        // Panggil API Puter menggunakan prompt yang sudah disisipkan identitas
+        const respon = await puter.ai.chat(promptSistem);
+        // --------------------------------------
         
         let teksJawabanAsli = "";
         if (respon && respon.message && respon.message.content) {
@@ -231,6 +238,7 @@ async function panggilAI() {
         send.disabled = false;
     }
 }
+
 
 const toggleMenuBtn = document.getElementById('toggle-menu');
 const sidebarMenu = document.getElementById('sidebar-menu');
