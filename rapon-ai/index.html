@@ -2,22 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>RaPon-AI Sidebar Responsif</title>
     <script src="https://js.puter.com/v2/"></script>
     <style>
         html, body {
             margin: 0;
             padding: 0;
-            height: 100%;
+            /* Menggunakan height: 100vh dan dvh (Dynamic Viewport Height) untuk mobile browser */
+            height: 100vh;
+            height: 100dvh; 
             font-family: sans-serif;
             background: #0b141a;
             color: #e9edef;
+            overflow: hidden; /* Mengunci scroll utama pada body */
         }
 
         .app-container {
             display: flex;
-            height: 100vh;
+            height: 100%;
+            width: 100%;
             overflow: hidden;
             position: relative; 
         }
@@ -30,6 +34,8 @@
             box-sizing: border-box;
             transition: transform 0.3s ease; 
             z-index: 100; 
+            /* Memastikan posisi sidebar mantap di mobile */
+            height: 100%;
         }
 
         .main-content {
@@ -38,7 +44,8 @@
             display: flex;
             flex-direction: column;
             height: 100%;
-            box-sizing: border-box;
+            min-width: 0; /* Mencegah flexbox meluap secara horizontal */
+            position: relative;
         }
 
         .chat-header {
@@ -48,6 +55,7 @@
             align-items: center;
             gap: 15px;
             border-bottom: 1px solid #2a3942;
+            flex-shrink: 0; /* Mengunci header agar tidak mengecil/tertekan */
         }
 
         .hamburger-btn {
@@ -60,12 +68,13 @@
         }
 
         .chat-messages {
-        flex: 1; 
-        padding: 20px;
-        overflow-y: auto; 
-        
-        display: flex;
-        flex-direction: column;
+            flex: 1; 
+            padding: 20px;
+            overflow-y: auto; /* Hanya area ini yang boleh di-scroll */
+            -webkit-overflow-scrolling: touch; /* Scroll halus di iOS */
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
         }
 
         #prompt {
@@ -74,6 +83,8 @@
             display: flex;
             gap: 10px;
             border-top: 1px solid #2a3942;
+            flex-shrink: 0; /* Mengunci area input agar tetap diam di bawah */
+            box-sizing: border-box;
         }
 
         #prompt input {
@@ -84,6 +95,7 @@
             border-radius: 8px;
             color: white;
             outline: none;
+            font-size: 16px; /* Mencegah auto-zoom otomatis pada iOS Safari */
         }
 
         #prompt button {
@@ -143,18 +155,18 @@
     <div class="app-container">
 
         <aside class="sidebar" id="sidebar-menu">
-    <h2 style="margin-top: 0;">Obrolan</h2>
-    
-    <button id="new-chat-btn" style="background: #00a884; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 15px;">
-        + Obrolan Baru
-    </button>
+            <h2 style="margin-top: 0;">Obrolan</h2>
+            
+            <button id="new-chat-btn" style="background: #00a884; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 15px;">
+                + Obrolan Baru
+            </button>
 
-    <p style="color: #8696a0; font-size: 14px; margin-bottom: 5px;">Daftar chat history...</p>
-    
-    <div id="daftar-chat" style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;"></div>
-    
-    <button style="margin-top: 20px;">IndexedDB</button>
-</aside>
+            <p style="color: #8696a0; font-size: 14px; margin-bottom: 5px;">Daftar chat history...</p>
+            
+            <div id="daftar-chat" style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;"></div>
+            
+            <button style="margin-top: 20px;">IndexedDB</button>
+        </aside>
 
         <div class="sidebar-overlay" id="menu-overlay"></div>
 
@@ -168,11 +180,13 @@
             <div class="chat-messages" id="chat-box">
                 <h1>RaPon-AI Workspace</h1>
                 <p>Ini adalah area tempat bubble chat dirender. Coba kecilkan browser kamu atau buka via HP, lalu klik tombol garis tiga di kiri atas!</p>
+                <div style="height: 1200px; background: linear-gradient(#222e35, #111b21); margin-top: 20px; padding: 10px; border-radius: 8px; color: #8696a0;">
+                    Konten chat panjang ke bawah... (Scroll di sini untuk uji coba)
+                </div>
             </div>
 
             <div id="prompt">
                 <input type="text" id="user-input" placeholder="Ketik pesan di sini...">
-                
                 <button id="send-btn">&gt;</button>
             </div>
 
