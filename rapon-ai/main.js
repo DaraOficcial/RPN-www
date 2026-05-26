@@ -210,21 +210,9 @@ async function panggilAI() {
 
     try {
         send.disabled = true;
-
-        // Formatan pesan dengan menyertakan instruksi sistem (System Prompt) yang resmi
-        const pesanUntukAI = [
-            { 
-                role: 'system', 
-                content: 'Kamu adalah RaPon, sebuah AI asisten workspace buatan manusia yang ramah, pintar, dan berfokus membantu pengelolaan obrolan. Kamu HARUS menjawab sebagai RaPon dan menolak jika disebut sebagai Claude atau asisten lain.' 
-            },
-            { 
-                role: 'user', 
-                content: teksUser 
-            }
-        ];
-
-        // Kirim array pesan ke API Puter
-        const respon = await puter.ai.chat(pesanUntukAI);
+        
+        // Kita kirim chat biasa tanpa ribet karena dia keras kepala
+        const respon = await puter.ai.chat(teksUser);
         
         let teksJawabanAsli = "";
         if (respon && respon.message && respon.message.content) {
@@ -234,6 +222,13 @@ async function panggilAI() {
         } else {
             teksJawabanAsli = String(respon);
         }
+
+        // --- TRICK JITU: MANIPULASI TEKS RESPONS ---
+        // Kita ganti paksa kata 'Claude' atau 'Anthropic' menjadi 'RaPon' menggunakan Regex (case-insensitive)
+        teksJawabanAsli = teksJawabanAsli.replace(/Claude/gi, "RaPon");
+        teksJawabanAsli = teksJawabanAsli.replace(/Anthropic/gi, "Indra Syaputra");
+        teksJawabanAsli = teksJawabanAsli.replace(/Asisten AI buatan Anthropic/gi, "Asisten AI pintar bernama RaPon");
+        // ------------------------------------------
 
         bubblechat(teksJawabanAsli, 'ai');
         simpanKeDatabase(teksJawabanAsli, 'ai');
@@ -245,6 +240,7 @@ async function panggilAI() {
         send.disabled = false;
     }
 }
+
 
 
 const toggleMenuBtn = document.getElementById('toggle-menu');
