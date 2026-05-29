@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Tileset Editor 32x32</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
+        #canvas-container { border: 2px solid #333; overflow: auto; max-width: 90vw; max-height: 70vh; margin-top: 10px; }
+        canvas { background-image: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%); background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0px; cursor: crosshair; }
+        .controls { margin-top: 20px; gap: 10px; display: flex; flex-wrap: wrap; justify-content: center; }
+    </style>
+</head>
+<body>
+
+    <h2>Tileset Builder (32x32)</h2>
+    <input type="file" id="imageLoader" accept="image/png">
+    
+    <div id="canvas-container">
+        <canvas id="tilesetCanvas" width="320" height="320"></canvas>
+    </div>
+
+    <div class="controls">
+        <button onclick="downloadTileset()">Ekspor PNG</button>
+        <button onclick="clearCanvas()">Reset</button>
+        <button id="eraserBtn" onclick="toggleEraser()">Mode: Gambar</button>
+        <input type="file" id="importLoader" accept="image/png" title="Import Tileset">
+    </div>
+
+    <script>
+        const canvas = document.getElementById('tilesetCanvas');
+        const ctx = canvas.getContext('2d');
+        const TILE_SIZE = 32;
+        let selectedImage = null;
+        let isEraser = false;
+
+        document.getElementById('imageLoader').addEventListener('change', function(e) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = () => selectedImage = img;
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        });
+
+        // Fitur Import
+        document.getElementById('importLoader').addEventListener('change', function(e) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = () => ctx.drawImage(img, 0, 0);
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        });
+
+        // Fitur Toggle Eraser
+        function toggleEraser() {
+            isEraser = !isEraser;
+            document.getElementById('eraserBtn').innerText = isEraser ? "Mode: Hapus" : "Mode: Gambar";
+        }
+
+        canvas.addEventListener('mousedown', function(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / TILE_SIZE) * TILE_SIZE;
+            const y = Math.floor((e.clientY - rect.top) / TILE_SIZE) * TILE_SIZE;
+            
+            if (isEraser) {
+                ctx.clearRect(x, y, TILE_SIZE, TILE_SIZE);
+            } else if (selectedImage) {
+                ctx.drawImage(selectedImage, x, y, TILE_SIZE, TILE_SIZE);
+            }
+        });
+
+        function downloadTileset() {
+            const link = document.createElement('a');
+            link.download = 'tileset.png';
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    </script>
+</body>
+</html>
