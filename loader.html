@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <style>* { margin: 0; overflow: hidden; background: black; }</style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const cx = canvas.width = window.innerWidth, cy = canvas.height = window.innerHeight;
+        const x = cx / 2, y = cy / 2;
+
+        // 1. Koordinat awal objek
+        let boxX = x - 680, boxY = y - 50;
+        let circleX = x + 630, circleY = y;
+
+        // 2. Variabel untuk hitung sudut putaran (melingkar)
+        let angleBox = Math.PI; // Mulai dari kiri
+        let angleCircle = 0;    // Mulai dari kanan
+        const radiusPutaran = 150; // Jarak lingkaran putaran dari tengah
+
+        function animasi() {
+            // Bersihkan layar setiap frame biar tidak berbayang
+            ctx.clearRect(0, 0, cx, cy);
+
+            // --- HITUNG POSISI BARU ---
+            // Kotak Merah: Bergerak mendekat ke tengah, lalu berputar jika sudah dekat
+            if (boxX < x - radiusPutaran - 50) {
+                boxX += 5; // Kecepatan mendekat ke tengah
+            } else {
+                angleBox += 0.02; // Kecepatan berputar
+                boxX = x + Math.cos(angleBox) * radiusPutaran - 50; // -50 agar pas di tengah kotak
+                boxY = y + Math.sin(angleBox) * radiusPutaran - 50;
+            }
+
+            // Lingkaran Hijau: Bergerak mendekat ke tengah, lalu berputar jika sudah dekat
+            if (circleX > x + radiusPutaran) {
+                circleX -= 5; // Kecepatan mendekat ke tengah
+            } else {
+                angleCircle += 0.02; // Kecepatan berputar
+                circleX = x + Math.cos(angleCircle) * radiusPutaran;
+                circleY = y + Math.sin(angleCircle) * radiusPutaran;
+            }
+
+            // --- GAMBAR ULANG OBJEK ---
+            // Kotak Merah
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(boxX, boxY, 100, 100);
+
+            // Lingkaran Hijau
+            ctx.fillStyle = 'blue';
+            ctx.beginPath(); 
+            ctx.arc(circleX, circleY, 50, 0, Math.PI * 2); 
+            ctx.fill();
+
+            // Segitiga Biru (Tetap Diam di Tengah)
+            ctx.fillStyle = 'blue';
+            ctx.fill(new Path2D(`M ${x} ${y-50} L ${x-50} ${y+50} L ${x+50} ${y+50} Z`));
+
+            // Teks
+            ctx.font = '40px sans-serif';
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.fillText('RaPon Present', x, y + 150);
+
+            // Jalankan terus fungsi animasi secara berulang
+            requestAnimationFrame(animasi);
+        }
+
+        // Jalankan animasi pertama kali
+        animasi();
+    </script>
+</body>
+</html>

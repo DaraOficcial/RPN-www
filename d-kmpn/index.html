@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KMP Nusantara | Professional Audio Engine</title>
+    <style>
+        :root {
+            --bg-deep: #03040a;
+            --panel-glass: rgba(20, 20, 35, 0.7);
+            --accent-gold: #c5a059;
+            --neon-cyan: #00d9ff;
+            --text-dim: #94a3b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background-color: var(--bg-deep); 
+            color: #ffffff; 
+            font-family: 'Inter', -apple-system, sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* --- Background Decoration --- */
+        .glow-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 10% 20%, rgba(0, 217, 255, 0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 90% 80%, rgba(197, 160, 89, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 25px; }
+
+        /* --- NAVIGATION --- */
+        nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 30px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .logo { font-weight: 900; font-size: 1.5rem; letter-spacing: -1px; display: flex; align-items: center; gap: 10px; }
+        .logo span { color: var(--accent-gold); }
+        .nav-meta { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; }
+
+        /* --- HERO SECTION --- */
+        .hero { padding: 80px 0 60px; text-align: center; }
+        .badge {
+            display: inline-block; padding: 6px 16px; background: rgba(197, 160, 89, 0.1);
+            border: 1px solid var(--accent-gold); color: var(--accent-gold);
+            border-radius: 100px; font-size: 0.8rem; font-weight: 600; margin-bottom: 20px;
+        }
+        h1 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 800; line-height: 1.1; margin-bottom: 25px; }
+        .hero p { max-width: 600px; margin: 0 auto 40px; color: var(--text-dim); font-size: 1.1rem; }
+
+        /* --- CALL TO ACTION --- */
+        .cta-group { display: flex; justify-content: center; gap: 15px; }
+        .btn {
+            padding: 16px 35px; border-radius: 8px; font-weight: 700; text-decoration: none;
+            transition: all 0.3s; font-size: 1rem;
+        }
+        .btn-primary { background: #fff; color: #000; }
+        .btn-primary:hover { background: var(--neon-cyan); box-shadow: 0 0 30px rgba(0,217,255,0.4); }
+        .btn-outline { border: 1px solid rgba(255,255,255,0.1); color: #fff; }
+        .btn-outline:hover { background: rgba(255,255,255,0.05); border-color: #fff; }
+
+        /* --- FEATURES SECTION --- */
+        .section-title { margin-top: 100px; text-align: left; margin-bottom: 40px; }
+        .section-title h2 { font-size: 2rem; margin-bottom: 10px; }
+        .section-title div { width: 50px; height: 3px; background: var(--accent-gold); }
+
+        .feature-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px; margin-bottom: 100px;
+        }
+        .feature-card {
+            background: var(--panel-glass); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.05); padding: 35px; border-radius: 16px;
+            transition: transform 0.3s;
+        }
+        .feature-card:hover { transform: translateY(-5px); border-color: rgba(0, 217, 255, 0.2); }
+        .feature-card h3 { font-size: 1.2rem; margin-bottom: 15px; color: var(--neon-cyan); }
+        .feature-card p { color: var(--text-dim); font-size: 0.95rem; }
+
+        /* --- SPECS FOOTER --- */
+        .specs-bar {
+            background: rgba(255,255,255,0.02); padding: 20px; border-radius: 12px;
+            display: flex; flex-wrap: wrap; justify-content: space-around; gap: 20px;
+            border: 1px dashed rgba(255,255,255,0.1); margin-bottom: 60px;
+        }
+        .spec-item { text-align: center; }
+        .spec-item span { display: block; font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; }
+        .spec-item b { font-size: 0.9rem; color: #fff; }
+
+        footer { padding-bottom: 60px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 40px; }
+        .dev-credit { font-size: 0.9rem; color: var(--text-dim); }
+        .dev-credit b { color: #fff; }
+    </style>
+</head>
+<body>
+
+<div class="glow-bg"></div>
+
+<div class="container">
+    <nav>
+        <div class="logo">KMP<span>NUSANTARA</span></div>
+        <div class="nav-meta">Build 1.2.0 / Stable</div>
+    </nav>
+
+    <section class="hero">
+        <div class="badge">NEW UPDATE RELEASE</div>
+        <h1>The Next Generation of <br><span style="color: var(--neon-cyan)">Audio Sampler Engine.</span></h1>
+        <p>KMP Nusantara v1.2 menghadirkan arsitektur audio SDL3 yang lebih presisi, efisien, dan dirancang khusus untuk performa tinggi.</p>
+        
+        <div class="cta-group">
+            <a href="KMPN 226v1.2.rar" class="btn btn-primary">Download for Windows 11MB</a>
+            <a href="README_PANDUAN.html" class="btn btn-outline">View Documentation</a>
+        </div>
+    </section>
+
+    <div class="specs-bar">
+        <div class="spec-item"><span>ARCH</span><b>x64 / SDL3</b></div>
+        <div class="spec-item"><span>LATENCY</span><b>&lt; 5ms</b></div>
+        <div class="spec-item"><span>FORMAT</span><b>WAV PCM 16-BIT</b></div>
+        <div class="spec-item"><span>COMPATIBILITY</span><b>Win 8/10/11</b></div>
+    </div>
+
+    <div class="section-title">
+        <h2>Key Upgrades</h2>
+        <div></div>
+    </div>
+
+    <div class="feature-grid">
+        <div class="feature-card">
+            <h3>Polyphonic Precision</h3>
+            <p>Manajemen stream baru memungkinkan tumpukan suara yang kompleks tanpa penurunan kualitas atau distorsi digital.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Intelligent Panic Reset</h3>
+            <p>Fungsi pembersihan buffer instan yang terisolasi, memastikan sistem kembali stabil dalam hitungan milidetik.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Dynamic Resampling</h3>
+            <p>Engine otomatis mendeteksi dan menyesuaikan sample rate file WAV Anda ke hardware output secara real-time.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Low-Level Optimization</h3>
+            <p>Ditulis dengan C++ murni untuk konsumsi resource CPU minimal, memberikan headroom lebih luas untuk DAW lain.</p>
+        </div>
+    </div>
+    
+
+    <footer>
+        <p class="dev-credit">Developed by <b>Indra Syaputra (RaPon)</b></p>
+        <p style="font-size: 0.8rem; color: #444; margin-top: 10px;">© 2026 Nusantara Mobile Engine Project. Indonesia.</p>
+    </footer>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download RAXBROWS - SMPI Darul Mu'minin</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-main: #2c3e50;
+            --text-muted: #64748b;
+            --accent-color: #00b4d8;
+            --accent-hover: #0077b6;
+            --shadow: 0 10px 30px rgba(148, 163, 184, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        /* --- Animasi Latar Belakang Halus --- */
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -50px;
+            background: rgba(0, 180, 216, 0.04);
+            border-radius: 50%;
+            animation: floatUp 12s infinite linear;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% {
+                transform: translateY(-110vh) scale(1.3);
+                opacity: 0;
+            }
+        }
+
+        /* --- Kontainer Utama --- */
+        .container {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            max-width: 650px;
+            width: 100%;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-2px);
+        }
+
+        /* --- Identitas & Header --- */
+        .badge {
+            background: rgba(0, 180, 216, 0.1);
+            color: var(--accent-color);
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            display: inline-block;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1e293b;
+            line-height: 1.3;
+            margin-bottom: 12px;
+        }
+
+        h1 span {
+            color: var(--accent-color);
+        }
+
+        .version {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        /* --- Deskripsi & Fitur --- */
+        .description {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #475569;
+            margin-bottom: 30px;
+            text-align: justify;
+        }
+
+        .features-list {
+            text-align: left;
+            background: rgba(248, 250, 252, 0.8);
+            padding: 20px 25px;
+            border-radius: 16px;
+            margin-bottom: 35px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #334155;
+        }
+
+        .feature-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature-icon {
+            color: var(--accent-color);
+            margin-right: 12px;
+            font-weight: bold;
+        }
+
+        /* --- Tombol Unduh --- */
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-color);
+            color: #ffffff;
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 10px 20px rgba(0, 180, 216, 0.25);
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .btn-download:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 15px 25px rgba(0, 119, 182, 0.35);
+            transform: scale(1.01);
+        }
+
+        .btn-download svg {
+            margin-right: 10px;
+            fill: currentColor;
+        }
+
+        .file-info {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* --- Footer --- */
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        footer strong {
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Animasi Elemen Latar Belakang -->
+    <div class="background-animation" id="bgAnim"></div>
+
+    <div class="container">
+        <span class="badge">Edisi Khusus CBT</span>
+        <h1>RAXBROWS<br><span>SMPI Darul Mu'minin</span></h1>
+        <div class="version">Versi 1.0.0 (Android Aplikasi v2026)</div>
+
+        <p class="description">
+            <strong>RAXBROWS.SMPI-DAMUM</strong> adalah aplikasi browser ujian (CBT) resmi yang dirancang khusus untuk lingkungan belajar SMPI Darul Mu'minin. Aplikasi ini dibuat dengan sistem keamanan tinggi untuk memastikan integritas dan kejujuran jalannya ujian, meminimalkan gangguan teknis, serta memberikan kenyamanan visual bagi siswa selama mengerjakan soal.
+        </p>
+
+        <div class="features-list">
+            <div class="feature-item">
+                <span class="feature-icon">✓</span> Terintegrasi penuh dengan Server Ujian SMPI Darul Mu'minin
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">✓</span> Fitur Auto-Lock System untuk mencegah kecurangan (ganti tab/aplikasi)
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">✓</span> Audio Konfirmasi saat keluar demi meminimalkan <i>human-error</i>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">✓</span> Dilengkapi halaman proteksi kegagalan jaringan (Offline Page)
+            </div>
+        </div>
+
+        <!-- Ganti '#' dengan link URL file APK kamu -->
+        <a href="RAXBROWS.SMPI-DAMUM.zip" class="btn-download">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+                <path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/>
+            </svg>
+            Unduh Aplikasi (APK)
+        </a>
+        <div class="file-info">Kompatibel untuk Android 5.0 (Lollipop) ke atas</div>
+    </div>
+
+    <footer>
+        &copy; 2026 <strong>RaPon Indra Syaputra</strong>. All Rights Reserved.<br>
+        Embedded Systems & Software Development Platform
+    </footer>
+
+    <!-- Script Pembuat Animasi Gelembung -->
+    <script>
+        const bgAnim = document.getElementById('bgAnim');
+        const bubbleCount = 15;
+
+        for (let i = 0; i < bubbleCount; i++) {
+            const bubble = document.createElement('div');
+            bubble.classList.add('bubble');
+            
+            // Pengaturan acak ukuran dan posisi gelembung
+            const size = Math.random() * 60 + 20;
+            bubble.style.width = `${size}px`;
+            bubble.style.height = `${size}px`;
+            bubble.style.left = `${Math.random() * 100}%`;
+            
+            // Pengaturan acak durasi dan delay animasi
+            bubble.style.animationDuration = `${Math.random() * 8 + 8}s`;
+            bubble.style.animationDelay = `${Math.random() * 5}s`;
+            
+            bgAnim.appendChild(bubble);
+        }
+    </script>
+</body>
+</html>
