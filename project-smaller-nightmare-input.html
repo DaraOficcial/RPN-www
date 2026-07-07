@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RaPon Studio | Ide & Kolaborasi Game Smaller Nightmare</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #0d1117, #0a0c10 90%);
+      color: #e0e0e0;
+      overflow-x: hidden;
+    }
+
+    header {
+      text-align: center;
+      padding: 100px 20px 40px;
+    }
+
+    header h1 {
+      font-size: 2.6em;
+      background: linear-gradient(90deg, #4da6ff, #00e0ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: glow 3s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #4da6ff; }
+      to { text-shadow: 0 0 25px #00e0ff; }
+    }
+
+    header p {
+      color: #aaa;
+      font-size: 1.1em;
+      max-width: 700px;
+      margin: 20px auto;
+      line-height: 1.6;
+    }
+
+    .contact-form {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(77,166,255,0.3);
+      border-radius: 15px;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 30px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+      animation: fadeIn 1.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .contact-form h2 {
+      color: #4da6ff;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .contact-form p {
+      text-align: center;
+      color: #ccc;
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input, textarea {
+      padding: 12px 15px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      font-size: 1em;
+      transition: 0.2s;
+    }
+
+    input:focus, textarea:focus {
+      border: 1px solid #00e0ff;
+      background: rgba(255,255,255,0.12);
+    }
+
+    textarea {
+      resize: none;
+      height: 120px;
+    }
+
+    button {
+      background: linear-gradient(90deg, #4da6ff, #00e0ff);
+      color: white;
+      padding: 12px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      opacity: 0.8;
+      transform: scale(1.03);
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 60px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    footer p {
+      color: #888;
+      font-size: 0.95em;
+    }
+
+    footer span {
+      color: #4da6ff;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎮 RaPon Studio | Smaller Nightmare Project</h1>
+    <p>
+      Punya ide, saran, atau ingin bekerja sama untuk pengembangan game 
+      <b>Smaller Nightmare</b>?  
+      Kirimkan masukan kamu untuk desain <b>map, objek, item, NPC, atau musuh</b> di sini.  
+      Tim <b>RaPon Studio</b> terbuka untuk segala bentuk kolaborasi!
+    </p>
+  </header>
+
+  <div class="contact-form">
+    <h2>Kirim Ide & Kerja Sama</h2>
+    <p>Isi formulir di bawah ini. Pesan kamu akan dikirim langsung ke <b>Inbox RaPon Studio</b>.</p>
+    <form>
+      <input type="text" id="name" placeholder="Nama Lengkap" required>
+      <input type="email" id="email" placeholder="Alamat Email" required>
+      <input type="text" id="phone" placeholder="Nomor Telepon / WhatsApp (opsional)">
+      <textarea id="message" placeholder="Tulis ide, saran, atau bentuk kerja sama kamu di sini..." required></textarea>
+      <button type="submit">Kirim Pesan</button>
+    </form>
+  </div>
+
+  <footer>
+    <p>© 2025 <span>RaPon Studio</span> | Semua hak cipta dilindungi</p>
+  </footer>
+
+  <!-- EmailJS -->
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      emailjs.init("yHp6NNWn_P6pny19J"); // API Key kamu
+
+      const form = document.querySelector(".contact-form form");
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const name = document.getElementById("name").value;
+        const email = document.getElementById("email").value;
+        const phone = document.getElementById("phone").value;
+        const message = document.getElementById("message").value;
+
+        const fullMessage = 
+          "Nama Lengkap: " + name + "\n" +
+          "Email: " + email + "\n" +
+          "Nomor Telepon: " + phone + "\n" +
+          "Pesan:\n" + message;
+
+        const params = {
+          sendername: name,
+          senderemail: email,
+          subject: "Pesan dari Website RaPon Studio (Smaller Nightmare)",
+          message: fullMessage
+        };
+
+        emailjs.send("service_kdkzua8", "template_krz8o1b", params)
+          .then(function (response) {
+            alert("Terima kasih! Pesan kamu berhasil dikirim ke RaPon Studio.");
+            form.reset();
+          }, function (error) {
+            alert("Terjadi kesalahan saat mengirim pesan. Coba lagi nanti.");
+            console.error("EmailJS Error:", error);
+          });
+      });
+    });
+  </script>
+</body>
+</html>
