@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>SKAK Online - WebRTC P2P Pro Chat</title>
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <style>
+        * { box-sizing: border-box; user-select: none; -webkit-user-select: none; margin: 0; padding: 0; }
+        body { background-color: #1a1a2e; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; color: #ffffff; }
+        
+        /* UI Lobby WebRTC */
+        #lobby { text-align: center; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); width: 90%; max-width: 400px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.08); }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; background: #161625; color: #fff; text-align: center; font-size: 16px; outline: none; }
+        input:focus { border-color: #3b82f6; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 8px; background: #4e9f3d; color: white; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 5px; }
+        button:active { transform: scale(0.98); }
+        .btn-join { background: #007cb9; }
+
+        #ui-container { text-align: center; margin-bottom: 10px; display: none; }
+        #status { font-size: 15px; font-weight: 600; background: rgba(255, 255, 255, 0.1); padding: 8px 15px; border-radius: 20px; display: inline-block; }
+        
+        /* Wrapper Utama Area Game & Chat */
+        #main-game-wrapper { display: none; width: 100%; max-width: 480px; padding: 10px; position: relative; }
+        #game-container { width: 100%; aspect-ratio: 1 / 1; margin-bottom: 15px; }
+        canvas { width: 100%; height: 100%; background-color: #e0d8c3; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+        /* INTERFACE CHAT PREMIUM & PROFESIONAL */
+        #chat-container { background: #161625; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); margin-top: 5px; }
+        #chat-box { height: 120px; overflow-y: auto; background: #0f0f1a; border-radius: 12px; padding: 12px; display: flex; flex-column: column; gap: 8px; display: flex; flex-direction: column; scroll-behavior: smooth; }
+        
+        /* Bubble Balon Chat Elegan */
+        .msg { max-width: 80%; padding: 8px 14px; font-size: 14px; line-height: 1.4; word-wrap: break-word; border-radius: 16px; color: #ffffff; animation: fadeInBubble 0.2s ease-out; }
+        .msg.me { background: #3b82f6; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 2px 5px rgba(59, 130, 246, 0.2); }
+        .msg.peer { background: #2d2d3f; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .msg.system { background: rgba(255, 255, 255, 0.06); color: #a0aec0; align-self: center; font-size: 11px; padding: 4px 12px; border-radius: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid rgba(255,255,255,0.03); }
+
+        .chat-input-row { display: flex; gap: 8px; }
+        #chat-input { flex: 1; margin: 0; padding: 12px; text-align: left; font-size: 14px; background: #1e1e30; border: 1px solid rgba(255,255,255,0.05); color: #fff; border-radius: 10px; outline: none; }
+        #chat-input:focus { border-color: #3b82f6; }
+        #btn-send-chat { width: auto; padding: 0 20px; margin: 0; font-size: 14px; background: #3b82f6; border-radius: 10px; }
+
+        /* MENU SETELAH GAME OVER (MINIMALIS) */
+        #game-over-menu { display: none; background: rgba(255, 255, 255, 0.04); border-radius: 16px; padding: 15px; margin-top: 12px; text-align: center; border: 1px dashed rgba(255,255,255,0.1); }
+        .action-row { display: flex; gap: 10px; }
+        .action-row button { flex: 1; margin: 0; padding: 12px; border-radius: 10px; font-weight: 600; }
+        .btn-rematch-trigger { background: #10b981; }
+        .btn-exit-trigger { background: #ef4444; }
+
+        /* MODAL DIALOG POPUP REMATCH */
+        #rematch-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 2000; }
+        #rematch-box { background: #1e1e30; width: 85%; max-width: 340px; padding: 25px; border-radius: 18px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); text-align: center; border: 1px solid rgba(255,255,255,0.08); animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.1); }
+        #rematch-box h3 { font-size: 19px; margin-bottom: 8px; color: #10b981; font-weight: 700; }
+        #rematch-box p { font-size: 14px; color: #cbd5e1; margin-bottom: 22px; line-height: 1.5; }
+        .popup-btn-row { display: flex; gap: 10px; }
+        .popup-btn-row button { flex: 1; margin: 0; padding: 12px; font-weight: 600; border-radius: 8px; }
+        #btn-popup-rematch { background: #10b981; }
+        #btn-popup-exit { background: #ef4444; }
+
+        @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeInBubble { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="lobby">
+        <h2>Lobby SKAK P2P</h2>
+        <p style="font-size: 13px; color: #aaa; margin-top: 5px;">ID Kamu (Bagikan ke temen):</p>
+        <input type="text" id="my-id-display" readonly placeholder="Menghasilkan ID...">
+        
+        <hr style="border: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
+        
+        <p style="font-size: 13px; color: #aaa;">Masukkan ID Temen Lu:</p>
+        <input type="text" id="peer-id-input" placeholder="Paste ID lawan di sini">
+        <button class="btn-join" onclick="connectToPeer()">Tantang Lawan</button>
+    </div>
+
+    <div id="ui-container">
+        <h3 id="role-badge" style="color: #4e9f3d; margin-bottom: 5px;">HUBUNGAN TERSAMBUNG!</h3>
+        <div id="status">Giliran Putih</div>
+    </div>
+
+    <div id="main-game-wrapper">
+        <div id="game-container">
+            <canvas id="gameCanvas" width="600" height="600"></canvas>
+        </div>
+
+        <div id="chat-container">
+            <div id="chat-box"></div>
+            <div class="chat-input-row">
+                <input type="text" id="chat-input" placeholder="Ketik pesan di sini..." user-select="text">
+                <button id="btn-send-chat" onclick="sendChatMessage()">Kirim</button>
+            </div>
+        </div>
+
+        <div id="game-over-menu">
+            <p style="margin-bottom: 12px; color: #cbd5e1; font-size: 14px;">Permainan selesai! Main lagi, Bang?</p>
+            <div class="action-row">
+                <button class="btn-rematch-trigger" onclick="requestRematch()">🔄 Main Lagi</button>
+                <button class="btn-exit-trigger" onclick="exitGame()">🚪 Keluar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="rematch-overlay">
+        <div id="rematch-box">
+            <h3 id="rematch-title">Ajakan Rematch</h3>
+            <p id="rematch-text">Lawan mengajak Kamu bermain lagi!</p>
+            <div class="popup-btn-row">
+                <button id="btn-popup-rematch" onclick="requestRematch()">🔄 Main Lagi</button>
+                <button id="btn-popup-exit" onclick="exitGame()">🚪 Keluar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const peer = new Peer(); 
+        let conn = null; 
+        let myRole = null; 
+        let gameActive = false;
+
+        let myRematchRequest = false;
+        let peerRematchRequest = false;
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const statusDiv = document.getElementById('status');
+        const lobbyDiv = document.getElementById('lobby');
+        const uiContainer = document.getElementById('ui-container');
+        const mainGameWrapper = document.getElementById('main-game-wrapper');
+        const gameContainer = document.getElementById('game-container');
+        const chatBox = document.getElementById('chat-box');
+        const chatInput = document.getElementById('chat-input');
+        const gameOverMenu = document.getElementById('game-over-menu');
+
+        peer.on('open', (id) => {
+            document.getElementById('my-id-display').value = id;
+        });
+
+        peer.on('connection', (incomingConn) => {
+            conn = incomingConn;
+            myRole = 1; 
+            setupDataChannel();
+            startTheGame();
+        });
+
+        function connectToPeer() {
+            const targetId = document.getElementById('peer-id-input').value.trim();
+            if (!targetId) return alert("Isi dulu ID temen lu, Bang!");
+            
+            conn = peer.connect(targetId);
+            myRole = 2; 
+            setupDataChannel();
+            startTheGame();
+        }
+
+        function setupDataChannel() {
+            conn.on('open', () => {
+                console.log("Koneksi P2P WebRTC Berhasil Terbuka!");
+            });
+
+            conn.on('data', (data) => {
+                if (data.type === 'move') {
+                    board[data.to] = data.player;
+                    board[data.from] = 0;
+                    currentPlayer = myRole; 
+
+                    if (checkWinState(board, data.player)) {
+                        winner = data.player;
+                        gameActive = false;
+                        checkGameOverCondition();
+                    }
+                    updateStatus(); draw();
+                } 
+                else if (data.type === 'chat') {
+                    appendChatMsg(data.msg, 'peer');
+                } 
+                else if (data.type === 'rematch_request') {
+                    peerRematchRequest = true;
+                    handleRematchPopupSync();
+                }
+            });
+
+            conn.on('close', () => {
+                alert("Lawan keluar dari game/Koneksi putus!");
+                location.reload();
+            });
+        }
+
+        function startTheGame() {
+            lobbyDiv.style.display = 'none';
+            uiContainer.style.display = 'block';
+            mainGameWrapper.style.display = 'block'; 
+            gameContainer.style.display = 'block';
+            gameActive = true;
+            
+            const badge = document.getElementById('role-badge');
+            if(myRole === 1) { badge.innerText = "KAMU: TIM PUTIH (DULUAN)"; badge.style.color = "#4e9f3d"; }
+            else { badge.innerText = "KAMU: TIM COKELAT"; badge.style.color = "#d8b257"; }
+            
+            updateStatus(); draw();
+        }
+
+        function sendChatMessage() {
+            const msgText = chatInput.value.trim();
+            if (!msgText || !conn || !conn.open) return;
+
+            conn.send({ type: 'chat', msg: msgText });
+            appendChatMsg(msgText, 'me');
+            chatInput.value = "";
+        }
+
+        function appendChatMsg(text, senderClass) {
+            const msgElem = document.createElement('div');
+            msgElem.className = `msg ${senderClass}`;
+            msgElem.innerText = text;
+            chatBox.appendChild(msgElem);
+            chatBox.scrollTop = chatBox.scrollHeight; 
+        }
+
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendChatMessage();
+        });
+
+        function checkGameOverCondition() {
+            if (winner !== null) {
+                gameOverMenu.style.display = 'block'; 
+            }
+        }
+
+        function requestRematch() {
+            if (!conn || !conn.open) return;
+            
+            myRematchRequest = true;
+            conn.send({ type: 'rematch_request' });
+            handleRematchPopupSync();
+        }
+
+        function handleRematchPopupSync() {
+            const overlay = document.getElementById('rematch-overlay');
+            const btnRematch = document.getElementById('btn-popup-rematch');
+            const title = document.getElementById('rematch-title');
+            const text = document.getElementById('rematch-text');
+
+            if (myRematchRequest && peerRematchRequest) {
+                resetGameData();
+            } else if (myRematchRequest && !peerRematchRequest) {
+                overlay.style.display = 'flex';
+                title.innerText = "Menunggu Lawan...";
+                text.innerText = "Permintaan rematch telah dikirim. Menunggu konfirmasi dari HP lawan ya Bang...";
+                btnRematch.style.display = 'none';
+            } else if (!myRematchRequest && peerRematchRequest) {
+                overlay.style.display = 'flex';
+                title.innerText = "Tantangan Rematch! 🔥";
+                text.innerText = "Lawan mengajak Abang main lagi buat balas dendam. Sikat lagi kagak?";
+                btnRematch.style.display = 'block';
+            }
+        }
+
+        function resetGameData() {
+            board = [2, 2, 2, 0, 0, 0, 1, 1, 1]; 
+            currentPlayer = 1; 
+            selectedNode = null;
+            winner = null;
+            gameActive = true;
+
+            myRematchRequest = false;
+            peerRematchRequest = false;
+
+            gameOverMenu.style.display = 'none';
+            document.getElementById('rematch-overlay').style.display = 'none';
+            document.getElementById('btn-popup-rematch').style.display = 'block';
+
+            appendChatMsg("--- GAME BARU DIMULAI ---", "system");
+            updateStatus(); 
+            draw();
+        }
+
+        function exitGame() {
+            if (conn) conn.close();
+            location.reload();
+        }
+
+        // ==========================================
+        // LOGIKA CANVAS DAN GAMEPLAY
+        // ==========================================
+        const imgBg = new Image(); imgBg.src = 'kertas.png';
+        const imgPion1 = new Image(); imgPion1.src = 'pionkertas.png';
+        const imgPion2 = new Image(); imgPion2.src = 'pionkertasminyak.png';
+
+        const padding = 60, size = 600;
+        const nodes = [
+            { id: 0, x: padding, y: padding }, { id: 1, x: size / 2, y: padding }, { id: 2, x: size - padding, y: padding },       
+            { id: 3, x: padding, y: size / 2 }, { id: 4, x: size / 2, y: size / 2 }, { id: 5, x: size - padding, y: size / 2 },      
+            { id: 6, x: padding, y: size - padding }, { id: 7, x: size / 2, y: size - padding }, { id: 8, x: size - padding, y: size - padding } 
+        ];
+
+        const adjacencyList = [
+            [1, 3, 4], [0, 2, 4], [1, 5, 4], [0, 6, 4], [0, 1, 2, 3, 5, 6, 7, 8], [2, 8, 4], [3, 7, 4], [6, 8, 4], [5, 7, 4]        
+        ];
+
+        const winLines = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]             
+        ];
+
+        let board = [2, 2, 2, 0, 0, 0, 1, 1, 1]; 
+        let currentPlayer = 1; 
+        let selectedNode = null;
+        let winner = null;
+
+        function updateStatus() {
+            if (winner) {
+                statusDiv.innerText = winner === myRole ? 'KAMU MENANG! 🎉' : 'KAMU KALAH! 👎';
+                statusDiv.style.background = winner === myRole ? '#4e9f3d' : '#ef4444';
+            } else {
+                if (currentPlayer === myRole) {
+                    statusDiv.innerText = 'Giliran Kamu!'; statusDiv.style.background = '#4e9f3d';
+                } else {
+                    statusDiv.innerText = 'Menunggu Lawan...'; statusDiv.style.background = 'rgba(255, 255, 255, 0.1)';
+                }
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (imgBg.complete && imgBg.naturalWidth !== 0) { ctx.drawImage(imgBg, 0, 0, canvas.width, canvas.height); } 
+            else { ctx.fillStyle = '#e5dcc5'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+            
+            ctx.strokeStyle = '#222222'; ctx.lineWidth = 5;
+            ctx.strokeRect(padding, padding, size - padding * 2, size - padding * 2);
+            ctx.beginPath();
+            ctx.moveTo(nodes[0].x, nodes[0].y); ctx.lineTo(nodes[8].x, nodes[8].y);
+            ctx.moveTo(nodes[2].x, nodes[2].y); ctx.lineTo(nodes[6].x, nodes[6].y);
+            ctx.moveTo(nodes[1].x, nodes[1].y); ctx.lineTo(nodes[7].x, nodes[7].y);
+            ctx.moveTo(nodes[3].x, nodes[3].y); ctx.lineTo(nodes[5].x, nodes[5].y);
+            ctx.stroke();
+
+            nodes.forEach(node => { ctx.beginPath(); ctx.arc(node.x, node.y, 8, 0, Math.PI * 2); ctx.fillStyle = '#444444'; ctx.fill(); });
+
+            // MODIFIKASI: ROTASI VISUAL SELEKSI PION UNTUK PLAYER 2
+            if (selectedNode !== null) {
+                const drawIndex = (myRole === 2) ? 8 - selectedNode : selectedNode;
+                ctx.beginPath(); ctx.arc(nodes[drawIndex].x, nodes[drawIndex].y, 45, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(233, 69, 96, 0.6)'; ctx.lineWidth = 4; ctx.stroke();
+            }
+
+            const pionRadius = 35;
+            board.forEach((player, index) => {
+                if (player === 0) return;
+                
+                // MODIFIKASI: ROTASI VISUAL POSISI PION UNTUK PLAYER 2
+                const drawIndex = (myRole === 2) ? 8 - index : index;
+                const node = nodes[drawIndex];
+                
+                const img = player === 1 ? imgPion1 : imgPion2;
+                if (img.complete && img.naturalWidth !== 0) { ctx.drawImage(img, node.x - pionRadius, node.y - pionRadius, pionRadius * 2, pionRadius * 2); } 
+                else {
+                    ctx.beginPath(); ctx.arc(node.x, node.y, 32, 0, Math.PI * 2);
+                    ctx.fillStyle = player === 1 ? '#ffffff' : '#b08968'; ctx.fill(); ctx.stroke();
+                }
+            });
+        }
+
+        function handleInput(clientX, clientY) {
+            if (!gameActive || currentPlayer !== myRole || winner) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const clickX = (clientX - rect.left) * (canvas.width / rect.width);
+            const clickY = (clientY - rect.top) * (canvas.height / rect.height);
+
+            let clickedNodeIndex = null;
+            for (let i = 0; i < nodes.length; i++) {
+                if (Math.hypot(nodes[i].x - clickX, nodes[i].y - clickY) < 45) { 
+                    // MODIFIKASI: ROTASI KOORDINAT INPUT SENTUHAN UNTUK PLAYER 2
+                    clickedNodeIndex = (myRole === 2) ? 8 - i : i; 
+                    break; 
+                }
+            }
+            if (clickedNodeIndex === null) return;
+            const clickedOwner = board[clickedNodeIndex];
+
+            if (selectedNode === null) {
+                if (clickedOwner === myRole) selectedNode = clickedNodeIndex;
+            } else {
+                if (selectedNode === clickedNodeIndex) selectedNode = null;
+                else if (clickedOwner === myRole) selectedNode = clickedNodeIndex;
+                else if (clickedOwner === 0 && adjacencyList[selectedNode].includes(clickedNodeIndex)) {
+                    board[clickedNodeIndex] = myRole;
+                    board[selectedNode] = 0;
+
+                    if (conn && conn.open) {
+                        conn.send({ type: 'move', from: selectedNode, to: clickedNodeIndex, player: myRole });
+                    }
+
+                    selectedNode = null;
+
+                    if (checkWinState(board, myRole)) {
+                        winner = myRole;
+                        gameActive = false;
+                        checkGameOverCondition();
+                    } else {
+                        currentPlayer = myRole === 1 ? 2 : 1;
+                    }
+                }
+            }
+            updateStatus(); draw();
+        }
+
+        function checkWinState(state, player) {
+            return winLines.some(line => {
+                if (player === 1 && line[0] === 6 && line[1] === 7 && line[2] === 8) return false;
+                if (player === 2 && line[0] === 0 && line[1] === 1 && line[2] === 2) return false;
+                return line.every(index => state[index] === player);
+            });
+        }
+
+        canvas.addEventListener('mousedown', (e) => handleInput(e.clientX, e.clientY));
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); if (e.touches.length > 0) handleInput(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+        imgBg.onload = draw; imgPion1.onload = draw; imgPion2.onload = draw;
+    </script>
+</body>
+</html>

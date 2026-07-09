@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Lawan Robot - SKAK</title>
+    <style>
+        * { box-sizing: border-box; user-select: none; -webkit-user-select: none; margin: 0; padding: 0; }
+        body { background-color: #1a1a2e; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; color: #ffffff; overflow: hidden; }
+        
+        /* GAYA LAYAR PILIH KESULITAN */
+        #difficulty-screen {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 360px;
+            padding: 20px;
+            text-align: center;
+        }
+        #difficulty-screen h2 {
+            font-size: 26px;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.2);
+        }
+        .diff-btn {
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .diff-btn:active { transform: scale(0.97); }
+        .diff-btn.pemula { background: #4e9f3d; box-shadow: 0 4px 12px rgba(78, 159, 61, 0.3); }
+        .diff-btn.menengah { background: #d8b257; box-shadow: 0 4px 12px rgba(216, 178, 87, 0.3); }
+        .diff-btn.sulit { background: #e94560; box-shadow: 0 4px 12px rgba(233, 69, 96, 0.3); }
+        .diff-btn.expert { 
+            background: linear-gradient(45deg, #ff0055, #7a00ff); 
+            box-shadow: 0 5px 20px rgba(255, 0, 85, 0.5);
+            font-size: 17px;
+            letter-spacing: 1px;
+            animation: pulse 1.5s infinite alternate;
+        }
+        .diff-btn.back { background: #4f517d; margin-top: 10px; }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.03); box-shadow: 0 5px 25px rgba(122, 0, 255, 0.7); }
+        }
+
+        /* GAYA ARENA LAYAR GAME */
+        #game-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        #ui-container { text-align: center; margin-bottom: 15px; width: 100%; max-width: 500px; padding: 0 10px; }
+        h2 { font-size: 24px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 3px; }
+        #difficulty-badge { font-size: 12px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; display: inline-block; padding: 3px 10px; border-radius: 10px; background: rgba(255,255,255,0.15); }
+        #status { font-size: 15px; font-weight: 600; background: rgba(255, 255, 255, 0.1); padding: 8px 15px; border-radius: 20px; display: inline-block; }
+        #game-container { position: relative; width: 100%; max-width: 500px; aspect-ratio: 1 / 1; padding: 10px; }
+        canvas { width: 100%; height: 100%; background-color: #e0d8c3; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: block; }
+        
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        .action-btn { padding: 10px 20px; font-size: 15px; font-weight: bold; color: #ffffff; border: none; border-radius: 25px; cursor: pointer; transition: transform 0.1s; }
+        .action-btn:active { transform: scale(0.95); }
+        #reset-btn { background: #e94560; box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4); }
+        #back-btn { background: #4f517d; box-shadow: 0 4px 15px rgba(79, 81, 125, 0.4); }
+    </style>
+</head>
+<body>
+
+    <div id="difficulty-screen">
+        <h2>PILIH LEVEL AI</h2>
+        <button class="diff-btn pemula" onclick="selectDifficulty('pemula')">👶 Pemula (Mudah)</button>
+        <button class="diff-btn menengah" onclick="selectDifficulty('menengah')">👦 Menengah</button>
+        <button class="diff-btn sulit" onclick="selectDifficulty('sulit')">👨 Sulit</button>
+        <button class="diff-btn expert" onclick="selectDifficulty('expert')">😈 DEWA MINIMAX (Unbeatable)</button>
+        <button class="diff-btn back" onclick="location.href='utama.html'">⬅ Kembali ke Menu</button>
+    </div>
+
+    <div id="game-screen">
+        <div id="ui-container">
+            <h2>VS ROBOT (AI)</h2>
+            <div id="difficulty-badge">LEVEL: -</div>
+            <br>
+            <div id="status">Memuat Game...</div>
+        </div>
+
+        <div id="game-container">
+            <canvas id="gameCanvas" width="600" height="600"></canvas>
+        </div>
+
+        <div class="btn-group">
+            <button class="action-btn" id="reset-btn" onclick="resetGame()">Reset</button>
+            <button class="action-btn" id="back-btn" onclick="exitToDifficultyMenu()">Ganti Level</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const statusDiv = document.getElementById('status');
+        const badgeDiv = document.getElementById('difficulty-badge');
+        const diffScreen = document.getElementById('difficulty-screen');
+        const gameScreen = document.getElementById('game-screen');
+
+        let difficulty = 'pemula'; 
+
+        let assetsLoaded = 0;
+        const imgBg = new Image(); imgBg.src = 'kertas.png'; imgBg.onload = assetLoaded; imgBg.onerror = assetLoaded;
+        const imgPion1 = new Image(); imgPion1.src = 'pionkertas.png'; imgPion1.onload = assetLoaded; imgPion1.onerror = assetLoaded;
+        const imgPion2 = new Image(); imgPion2.src = 'pionkertasminyak.png'; imgPion2.onload = assetLoaded; imgPion2.onerror = assetLoaded;
+
+        function assetLoaded() { assetsLoaded++; }
+
+        const padding = 60, size = 600;
+        const nodes = [
+            { id: 0, x: padding, y: padding }, { id: 1, x: size / 2, y: padding }, { id: 2, x: size - padding, y: padding },       
+            { id: 3, x: padding, y: size / 2 }, { id: 4, x: size / 2, y: size / 2 }, { id: 5, x: size - padding, y: size / 2 },      
+            { id: 6, x: padding, y: size - padding }, { id: 7, x: size / 2, y: size - padding }, { id: 8, x: size - padding, y: size - padding } 
+        ];
+
+        const adjacencyList = [
+            [1, 3, 4], [0, 2, 4], [1, 5, 4], [0, 6, 4], [0, 1, 2, 3, 5, 6, 7, 8], [2, 8, 4], [3, 7, 4], [6, 8, 4], [5, 7, 4]        
+        ];
+
+        const winLines = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]             
+        ];
+
+        let board = [], currentPlayer = 1, selectedNode = null, winner = null, isAITinking = false;
+
+        function selectDifficulty(lvl) {
+            difficulty = lvl;
+            diffScreen.style.display = 'none';
+            gameScreen.style.display = 'flex';
+            
+            if(lvl === 'pemula') { badgeDiv.innerText = "LEVEL: PEMULA 👶"; badgeDiv.style.color = "#4e9f3d"; }
+            else if(lvl === 'menengah') { badgeDiv.innerText = "LEVEL: MENENGAH 👦"; badgeDiv.style.color = "#d8b257"; }
+            else if(lvl === 'sulit') { badgeDiv.innerText = "LEVEL: SULIT 👨"; badgeDiv.style.color = "#e94560"; }
+            else if(lvl === 'expert') { badgeDiv.innerText = "LEVEL: DEWA (UNBEATABLE) 😈"; badgeDiv.style.color = "#ff0055"; }
+
+            initGame();
+        }
+
+        function exitToDifficultyMenu() {
+            gameScreen.style.display = 'none';
+            diffScreen.style.display = 'flex';
+        }
+
+        function initGame() {
+            board = [2, 2, 2, 0, 0, 0, 1, 1, 1];
+            currentPlayer = 1; selectedNode = null; winner = null; isAITinking = false;
+            updateStatus(); draw();
+        }
+
+        function updateStatus() {
+            if (winner) {
+                statusDiv.innerText = winner === 1 ? 'KAMU MENANG! 🎉 (Hacker nih!)' : 'ROBOT MENANG! 🤖';
+                statusDiv.style.background = winner === 1 ? '#4e9f3d' : '#e94560';
+            } else {
+                if (currentPlayer === 2) {
+                    statusDiv.innerText = 'Robot sedang simulasi masa depan... 🤖';
+                    statusDiv.style.background = 'rgba(122, 0, 255, 0.3)';
+                } else {
+                    statusDiv.innerText = 'Giliran Kamu (Putih)';
+                    statusDiv.style.background = 'rgba(255, 255, 255, 0.1)';
+                }
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (imgBg.complete && imgBg.naturalWidth !== 0) {
+                ctx.drawImage(imgBg, 0, 0, canvas.width, canvas.height);
+            } else {
+                ctx.fillStyle = '#e5dcc5'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = 'rgba(0, 0, 250, 0.08)'; ctx.lineWidth = 2;
+                for (let i = 40; i < canvas.height; i += 24) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke(); }
+            }
+            ctx.strokeStyle = '#222222'; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            ctx.strokeRect(padding, padding, size - padding * 2, size - padding * 2);
+            ctx.beginPath();
+            ctx.moveTo(nodes[0].x, nodes[0].y); ctx.lineTo(nodes[8].x, nodes[8].y);
+            ctx.moveTo(nodes[2].x, nodes[2].y); ctx.lineTo(nodes[6].x, nodes[6].y);
+            ctx.moveTo(nodes[1].x, nodes[1].y); ctx.lineTo(nodes[7].x, nodes[7].y);
+            ctx.moveTo(nodes[3].x, nodes[3].y); ctx.lineTo(nodes[5].x, nodes[5].y);
+            ctx.stroke();
+
+            nodes.forEach(node => {
+                ctx.beginPath(); ctx.arc(node.x, node.y, 8, 0, Math.PI * 2);
+                ctx.fillStyle = '#444444'; ctx.fill();
+            });
+
+            if (selectedNode !== null) {
+                ctx.beginPath(); ctx.arc(nodes[selectedNode].x, nodes[selectedNode].y, 45, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(233, 69, 96, 0.6)'; ctx.lineWidth = 4; ctx.stroke();
+            }
+
+            const pionRadius = 35;
+            board.forEach((player, index) => {
+                if (player === 0) return;
+                const node = nodes[index];
+                const img = player === 1 ? imgPion1 : imgPion2;
+                if (img.complete && img.naturalWidth !== 0) {
+                    ctx.drawImage(img, node.x - pionRadius, node.y - pionRadius, pionRadius * 2, pionRadius * 2);
+                } else {
+                    ctx.beginPath(); ctx.arc(node.x, node.y, 32, 0, Math.PI * 2);
+                    ctx.fillStyle = player === 1 ? '#ffffff' : '#b08968'; ctx.fill();
+                    ctx.strokeStyle = player === 1 ? '#aaaaaa' : '#7f5539'; ctx.lineWidth = 3; ctx.stroke();
+                }
+            });
+        }
+
+        function handleInput(clientX, clientY) {
+            if (winner || isAITinking || currentPlayer === 2) return;
+            const rect = canvas.getBoundingClientRect();
+            const clickX = (clientX - rect.left) * (canvas.width / rect.width);
+            const clickY = (clientY - rect.top) * (canvas.height / rect.height);
+
+            let clickedNodeIndex = null;
+            for (let i = 0; i < nodes.length; i++) {
+                if (Math.hypot(nodes[i].x - clickX, nodes[i].y - clickY) < 45) { clickedNodeIndex = i; break; }
+            }
+            if (clickedNodeIndex === null) return;
+            const clickedOwner = board[clickedNodeIndex];
+
+            if (selectedNode === null) {
+                if (clickedOwner === currentPlayer) selectedNode = clickedNodeIndex;
+            } else {
+                if (selectedNode === clickedNodeIndex) selectedNode = null;
+                else if (clickedOwner === currentPlayer) selectedNode = clickedNodeIndex;
+                else if (clickedOwner === 0 && adjacencyList[selectedNode].includes(clickedNodeIndex)) {
+                    board[clickedNodeIndex] = currentPlayer;
+                    board[selectedNode] = 0;
+                    selectedNode = null;
+                    if (checkWinState(board, 1)) {
+                        winner = 1;
+                    } else {
+                        currentPlayer = 2;
+                        isAITinking = true;
+                        updateStatus();
+                        setTimeout(makeRobotMove, 500);
+                    }
+                }
+            }
+            updateStatus(); draw();
+        }
+
+        // FUNGSI UTAMA PENGAMBILAN KEPUTUSAN AI
+        function makeRobotMove() {
+            if (winner || currentPlayer !== 2) return;
+
+            let legalMoves = getLegalMoves(board, 2);
+            if (legalMoves.length === 0) { currentPlayer = 1; isAITinking = false; updateStatus(); return; }
+
+            let chosenMove = null;
+
+            // 1. SISTEM BLUNDER BERDASARKAN LEVEL BAWAHAN
+            let rand = Math.random();
+            let forceRandom = false;
+            if (difficulty === 'pemula') { if (rand < 0.70) forceRandom = true; } 
+            else if (difficulty === 'menengah') { if (rand < 0.35) forceRandom = true; } 
+            else if (difficulty === 'sulit') { if (rand < 0.08) forceRandom = true; }
+
+            if (forceRandom) {
+                chosenMove = legalMoves[Math.floor(Math.random() * legalMoves.length)];
+            } else {
+                // KONDISI LEVEL EXPERT / DEWA (MENGGUNAKAN MATEMATIKA MINIMAX)
+                if (difficulty === 'expert') {
+                    let bestScore = -Infinity;
+                    let candidates = [];
+                    
+                    // Acak urutan move agar variatif jika ada nilai yang sama sempurna
+                    legalMoves.sort(() => Math.random() - 0.5);
+
+                    for (let move of legalMoves) {
+                        board[move.to] = 2; board[move.from] = 0; // eksekusi bayangan
+                        
+                        // Panggil pencarian masa depan sedalam 6 ply (langkah) ke depan
+                        let score = minimax(board, 6, false, -Infinity, Infinity, [move.from + "-" + move.to]);
+                        
+                        board[move.to] = 0; board[move.from] = 2; // rollback posisi asli
+                        
+                        if (score > bestScore) {
+                            bestScore = score;
+                            candidates = [move];
+                        } else if (score === bestScore) {
+                            candidates.push(move);
+                        }
+                    }
+                    chosenMove = candidates[0];
+                } else {
+                    // LOGIKA HEURISTIK STANDAR UNTUK LEVEL SULIT (Bukan Minimax Penuh)
+                    for (let move of legalMoves) {
+                        board[move.to] = 2; board[move.from] = 0;
+                        let isWin = checkWinState(board, 2);
+                        board[move.to] = 0; board[move.from] = 2;
+                        if (isWin) { chosenMove = move; break; }
+                    }
+                    if (!chosenMove) {
+                        for (let line of winLines) {
+                            if (line[0] === 6 && line[1] === 7 && line[2] === 8) continue;
+                            if (line.filter(idx => board[idx] === 1).length === 2 && line.filter(idx => board[idx] === 0).length === 1) {
+                                let critIdx = line.find(idx => board[idx] === 0);
+                                let block = legalMoves.find(m => m.to === critIdx);
+                                if (block) { chosenMove = block; break; }
+                            }
+                        }
+                    }
+                    if (!chosenMove) { let center = legalMoves.find(m => m.to === 4); if (center) chosenMove = center; }
+                    if (!chosenMove) chosenMove = legalMoves[Math.floor(Math.random() * legalMoves.length)];
+                }
+            }
+
+            // Eksekusi langkah final robot di dunia nyata
+            board[chosenMove.to] = 2; board[chosenMove.from] = 0;
+            if (checkWinState(board, 2)) winner = 2; else currentPlayer = 1;
+
+            isAITinking = false; updateStatus(); draw();
+        }
+
+        // ENGINE MINIMAX + PRUNING ALPHA-BETA (ALGORITMA DEWA)
+        function minimax(state, depth, isMaximizing, alpha, beta, moveHistory) {
+            if (checkWinState(state, 2)) return 1000 + depth; // Semakin cepat robot menang, poin semakin tinggi
+            if (checkWinState(state, 1)) return -1000 - depth; // Semakin cepat manusia menang, hukuman semakin berat
+            if (depth === 0) return evaluateHeuristics(state);
+
+            if (isMaximizing) {
+                let maxEval = -Infinity;
+                let moves = getLegalMoves(state, 2);
+                if(moves.length === 0) return evaluateHeuristics(state);
+                
+                for (let move of moves) {
+                    let key = move.from + "-" + move.to;
+                    if (moveHistory.slice(-2).includes(key)) continue; // Mencegah AI looping bolak-balik bodoh saat simulasi
+
+                    state[move.to] = 2; state[move.from] = 0;
+                    moveHistory.push(key);
+                    
+                    let evaluation = minimax(state, depth - 1, false, alpha, beta, moveHistory);
+                    
+                    moveHistory.pop();
+                    state[move.to] = 0; state[move.from] = 2;
+
+                    maxEval = Math.max(maxEval, evaluation);
+                    alpha = Math.max(alpha, evaluation);
+                    if (beta <= alpha) break; // Alpha-beta pruning (potong cabang tidak berguna)
+                }
+                return maxEval;
+            } else {
+                let minEval = Infinity;
+                let moves = getLegalMoves(state, 1);
+                if(moves.length === 0) return evaluateHeuristics(state);
+
+                for (let move of moves) {
+                    let key = move.from + "-" + move.to;
+                    if (moveHistory.slice(-2).includes(key)) continue;
+
+                    state[move.to] = 1; state[move.from] = 0;
+                    moveHistory.push(key);
+                    
+                    let evaluation = minimax(state, depth - 1, true, alpha, beta, moveHistory);
+                    
+                    moveHistory.pop();
+                    state[move.to] = 0; state[move.from] = 1;
+
+                    minEval = Math.min(minEval, evaluation);
+                    beta = Math.min(beta, evaluation);
+                    if (beta <= alpha) break;
+                }
+                return minEval;
+            }
+        }
+
+        function getLegalMoves(state, player) {
+            let moves = [];
+            for (let from = 0; from < state.length; from++) {
+                if (state[from] === player) {
+                    adjacencyList[from].forEach(to => { if (state[to] === 0) moves.push({ from, to }); });
+                }
+            }
+            return moves;
+        }
+
+        // PENILAIAN STRATEGIS SITUASI NON-TERMINAL (HEURISTIK)
+        function evaluateHeuristics(state) {
+            let score = 0;
+            
+            // Prioritas mutlak: Tengah papan (Node 4) bernilai tinggi
+            if (state[4] === 2) score += 40;
+            if (state[4] === 1) score -= 40;
+
+            // Evaluasi potensi garis ancaman (Forking)
+            winLines.forEach(line => {
+                let rHome = (line[0] === 0 && line[1] === 1 && line[2] === 2);
+                let hHome = (line[0] === 6 && line[1] === 7 && line[2] === 8);
+
+                let robotPieces = line.filter(idx => state[idx] === 2).length;
+                let humanPieces = line.filter(idx => state[idx] === 1).length;
+                let emptySpaces = line.filter(idx => state[idx] === 0).length;
+
+                // Hitung ancaman 2 baris terisi + 1 kosong (di luar kandang masing-masing)
+                if (!rHome && robotPieces === 2 && emptySpaces === 1) score += 15;
+                if (!hHome && humanPieces === 2 && emptySpaces === 1) score -= 15;
+            });
+
+            return score;
+        }
+
+        function checkWinState(state, player) {
+            return winLines.some(line => {
+                if (player === 1 && line[0] === 6 && line[1] === 7 && line[2] === 8) return false;
+                if (player === 2 && line[0] === 0 && line[1] === 1 && line[2] === 2) return false;
+                return line.every(index => state[index] === player);
+            });
+        }
+
+        function resetGame() { initGame(); }
+        canvas.addEventListener('mousedown', (e) => handleInput(e.clientX, e.clientY));
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); if (e.touches.length > 0) handleInput(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+    </script>
+</body>
+</html>
